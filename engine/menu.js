@@ -5,7 +5,7 @@ export function createMenu(root) {
     if (className) el.className = className;
     return el;
   };
-  const focusables = () => [...root.querySelectorAll('button, input')];
+  const focusables = () => [...root.querySelectorAll('button:not(:disabled), input')];
   let sliderCount = 0;
 
   root.addEventListener('keydown', (e) => {
@@ -50,9 +50,11 @@ export function createMenu(root) {
         root.append(box);
       }
       const list = make('div', '', 'menu-buttons');
-      for (const { label, onClick } of buttons) {
+      for (const { label, detail, disabled, onClick } of buttons) {
         const button = make('button', label);
         button.type = 'button';
+        button.disabled = Boolean(disabled);
+        if (detail) button.append(make('span', detail, 'menu-detail'));
         button.addEventListener('click', onClick);
         list.append(button);
       }

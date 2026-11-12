@@ -1,12 +1,11 @@
 {
   "title": "Mazerunner",
-  "maze": "maze.txt",
 
   "size": { "cell": 4, "wallHeight": 3, "exitHeight": 8 },
 
   "player": { "speed": 5, "turnSpeed": 2.2, "eyeHeight": 1.6, "radius": 0.5, "fov": 75, "mouseSensitivity": 1 },
 
-  "rules": { "timeLimit": 0 },
+  "rules": { "timeLimit": 0, "movingWalls": { "upTime": 4, "downTime": 3, "moveTime": 1 } },
 
   "look": {
     "wall": "#7a8ca3",
@@ -16,12 +15,44 @@
     "fogDistance": 40
   },
 
-  "models": { "wall": "models/hedge_wall.glb", "exit": "models/guide_light.glb" },
+  "walls": { "style": "blocks", "color": "#7a8ca3", "roughness": 1, "metalness": 0, "opacity": 1, "roundness": 0, "bumpiness": 0 },
 
-  "sounds": { "music": null, "step": null, "win": null, "lose": null },
+  "models": { "exit": "models/guide_light.glb", "key": null, "door": null },
+
+  "keys": {
+    "a": { "name": "Red", "color": "#e53935" },
+    "b": { "name": "Yellow", "color": "#fdd835" },
+    "c": { "name": "Blue", "color": "#1e88e5" }
+  },
+
+  "sounds": { "music": null, "step": null, "win": null, "lose": null, "key": null, "door": null, "wallMove": null },
+
+  "levels": [
+    {
+      "id": "garden",
+      "name": "Hedge garden",
+      "maze": "levels/garden.txt",
+      "look": { "floor": "#3d4a2f", "sky": "#2b3a5c", "fogDistance": 40 },
+      "walls": { "style": "smooth", "color": "#3f7a35", "roughness": 0.95, "roundness": 0.9, "bumpiness": 0.35, "colorVariation": 0.35, "seed": 3 }
+    },
+    {
+      "id": "dungeon",
+      "name": "Stone dungeon",
+      "maze": "levels/dungeon.txt",
+      "look": { "floor": "#2a2826", "sky": "#07080c", "fogDistance": 22 },
+      "walls": { "style": "smooth", "color": "#8a8580", "roughness": 0.95, "metalness": 0, "roundness": 0.2, "bumpiness": 0.1, "colorVariation": 0.3, "seed": 7 }
+    },
+    {
+      "id": "ice",
+      "name": "Ice cave",
+      "maze": "levels/ice.txt",
+      "look": { "floor": "#b8cfdd", "sky": "#d8ebf7", "fogDistance": 45 },
+      "walls": { "style": "smooth", "color": "#d6ecfb", "roughness": 0.12, "metalness": 0.05, "opacity": 1, "roundness": 0.6, "bumpiness": 0, "colorVariation": 0.12, "seed": 11 }
+    }
+  ],
 
   "text": {
-    "controls": "Move: W A S D or arrow keys\nLook: mouse\nPause: Esc or P",
+    "controls": "Move: W A S D or arrow keys\nLook: mouse\nPause: Esc or P\nPick up keys to open doors of the same colour",
     "play": "Play",
     "settings": "Settings",
     "back": "Back",
@@ -35,6 +66,15 @@
     "playAgain": "Play again",
     "fov": "Field of view",
     "mouseSensitivity": "Mouse sensitivity",
-    "resetSettings": "Reset to defaults"
+    "resetSettings": "Reset to defaults",
+    "chooseLevel": "Choose a level",
+    "locked": "Locked",
+    "bestTime": "Best: {time} s",
+    "nextLevel": "Next level",
+    "allDone": "You escaped every maze!",
+    "loading": "Loading...",
+    "loadError": "Could not load the level",
+    "needKey": "You need the {key} key",
+    "gotKey": "{key} key picked up"
   }
 }

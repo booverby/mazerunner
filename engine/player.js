@@ -5,18 +5,19 @@ const MOVE_KEYS = {
 };
 
 export class Player {
-  constructor(camera, maze, config) {
+  constructor(camera, settings) {
     this.camera = camera;
-    this.maze = maze;
-    this.cell = config.size.cell;
-    this.settings = config.player;
+    this.settings = settings;
+    this.maze = null;
+    this.cell = 1;
     this.keys = new Set();
     this.yaw = 0;
     this.pitch = 0;
     this.moving = false;
+    this.isSolid = () => false;
+    this.bumped = new Set();
     this.mouseSensitivity = 1;
     camera.rotation.order = 'YXZ';
-    this.reset();
 
     addEventListener('keydown', (e) => this.keys.add(e.code));
     addEventListener('keyup', (e) => this.keys.delete(e.code));
@@ -29,11 +30,22 @@ export class Player {
     });
   }
 
+  // isSolid(cellX, cellZ) decides what blocks movement; it defaults to the maze walls.
+  setLevel(maze, config, isSolid = (x, z) => maze.isWall(x, z)) {
+    this.maze = maze;
+    this.isSolid = isSolid;
+    this.cell = config.size.cell;
+    this.keys.clear();
+    this.reset();
+  }
+
   reset() {
+    if (!this.maze) return;
     const { start } = this.maze;
     this.x = (start.x + 0.5) * this.cell;
     this.z = (start.z + 0.5) * this.cell;
     this.pitch = 0;
+    this.bumped.clear();
     this.yaw = this.openDirection();
     this.apply();
   }
@@ -46,15 +58,23 @@ export class Player {
     return open ? open[2] : 0;
   }
 
+  // Cells the player walked into are remembered in bumped until the next update.
   blocked(x, z) {
     const r = this.settings.radius;
+    let hit = false;
     for (const [ox, oz] of [[-r, -r], [r, -r], [-r, r], [r, r]]) {
-      if (this.maze.isWall(Math.floor((x + ox) / this.cell), Math.floor((z + oz) / this.cell))) return true;
+      const cx = Math.floor((x + ox) / this.cell);
+      const cz = Math.floor((z + oz) / this.cell);
+      if (this.isSolid(cx, cz)) {
+        this.bumped.add(`${cx},${cz}`);
+        hit = true;
+      }
     }
-    return false;
+    return hit;
   }
 
   update(dt) {
+    this.bumped.clear();
     let side = 0;
     let forward = 0;
     for (const code of this.keys) {
