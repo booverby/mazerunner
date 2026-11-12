@@ -65,7 +65,7 @@ export async function buildWorld(scene, maze, config, gameUrl) {
 
   let exit;
   if (models.exit) {
-    exit = fitToCell(await loadModel(gameUrl + models.exit), cell * 0.6, wallHeight * 0.8);
+    exit = fitToCell(await loadModel(gameUrl + models.exit), cell * 0.6, config.size.exitHeight ?? wallHeight * 0.8);
   } else {
     exit = new THREE.Mesh(
       new THREE.OctahedronGeometry(0.6),

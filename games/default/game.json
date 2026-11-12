@@ -2,7 +2,7 @@
   "title": "Mazerunner",
   "maze": "maze.txt",
 
-  "size": { "cell": 4, "wallHeight": 3 },
+  "size": { "cell": 4, "wallHeight": 3, "exitHeight": 8 },
 
   "player": { "speed": 5, "turnSpeed": 2.2, "eyeHeight": 1.6, "radius": 0.5 },
 
@@ -11,12 +11,12 @@
   "look": {
     "wall": "#7a8ca3",
     "floor": "#3b3f46",
-    "exit": "#35d07f",
+    "exit": "#3aa0ff",
     "sky": "#101820",
     "fogDistance": 40
   },
 
-  "models": { "wall": null, "exit": null },
+  "models": { "wall": "models/hedge_wall.glb", "exit": "models/guide_light.glb" },
 
   "sounds": { "music": null, "step": null, "win": null, "lose": null },
 

@@ -45,6 +45,8 @@ async function start() {
   window.game = game;
   showOverlay(config.title, text.start);
 
+  // Some embedded browsers refuse mouse capture; arrow keys still turn the view.
+  const lockMouse = () => renderer.domElement.requestPointerLock?.()?.catch?.(() => {});
   const play = () => {
     if (game.state === 'won' || game.state === 'lost') {
       player.reset();
@@ -53,7 +55,7 @@ async function start() {
     game.state = 'playing';
     overlay.classList.add('hidden');
     sounds.play('music');
-    renderer.domElement.requestPointerLock?.();
+    lockMouse();
   };
   const finish = (state) => {
     game.state = state;
@@ -63,7 +65,7 @@ async function start() {
     showOverlay(state === 'won' ? text.win : text.lose, text.again);
   };
   overlay.addEventListener('click', play);
-  renderer.domElement.addEventListener('click', () => renderer.domElement.requestPointerLock?.());
+  renderer.domElement.addEventListener('click', lockMouse);
   addEventListener('keydown', (e) => {
     if (e.code === 'Escape' && game.state === 'playing') {
       game.state = 'paused';
