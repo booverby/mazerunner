@@ -7,14 +7,39 @@
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; background: #000; font-family: system-ui, sans-serif; }
   canvas { display: block; }
-  #hud { position: fixed; top: 12px; left: 16px; right: 16px; color: #fff; font-size: 20px; text-shadow: 0 1px 3px #000; pointer-events: none; }
-  #hud-keys { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  #hud { position: fixed; top: 12px; left: 16px; right: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+    color: #fff; font-size: 18px; text-shadow: 0 1px 2px #000; pointer-events: none; }
+  .hud-pill { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; background: rgba(0,0,0,.6); border-radius: 6px; }
+  #hud-danger { display: flex; flex-wrap: wrap; gap: 8px; }
+  #hud-hearts { color: #ff4d6d; font-size: 20px; letter-spacing: 2px; }
+  #hud-hearts::after { content: attr(data-lost); color: rgba(255,255,255,.3); }
+  #hud-stealth:empty { display: none; }
+  #hud-stealth[data-state="spotted"] { background: rgba(170,10,30,.85); font-weight: 700; }
+  #hud-stealth[data-state="hidden"] { background: rgba(25,85,40,.85); }
+  #hud-keys { display: flex; flex-wrap: wrap; gap: 8px; }
+  #hud-keys:empty { display: none; }
   .hud-key { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 6px; font-size: 16px;
-    background: rgba(0,0,0,.45); border-radius: 6px; }
+    background: rgba(0,0,0,.6); border-radius: 6px; }
   .hud-swatch { width: 16px; height: 16px; border-radius: 4px; border: 2px solid #fff; box-sizing: border-box; }
   #hint { position: fixed; left: 50%; bottom: 18%; transform: translateX(-50%); max-width: calc(100% - 32px); box-sizing: border-box;
     padding: 8px 18px; color: #fff; font-size: 20px; text-align: center; background: rgba(0,0,0,.6); border-radius: 8px; pointer-events: none; }
-  #hud.hidden, #hint.hidden { display: none; }
+  #hud.hidden, #hint.hidden, #hud-danger.hidden, #hud-abilities .hidden, #map.hidden { display: none; }
+  #hud-status.urgent { font-size: 26px; font-weight: 700; border: 2px solid #fff; animation: hud-pulse 1s ease-in-out infinite; transform-origin: left center; }
+  @keyframes hud-pulse { 50% { transform: scale(1.08); } }
+  @media (prefers-reduced-motion: reduce) { #hud-status.urgent { animation: none; } }
+  #hud-abilities { display: flex; flex-wrap: wrap; gap: 8px; }
+  #hud-stamina { font-size: 16px; }
+  .hud-bar { position: relative; width: 110px; height: 12px; border: 2px solid #fff; border-radius: 4px; overflow: hidden; background: rgba(255,255,255,.15); }
+  #hud-stamina-fill { position: absolute; inset: 0 auto 0 0; background: #ffd54a; }
+  #hud-stamina.empty #hud-stamina-fill { background: repeating-linear-gradient(45deg, #ff8a65 0 4px, #8a3a20 4px 8px); }
+  #hud-map { font-size: 16px; }
+  #hud-map[data-ready="true"] { border: 2px solid #fff; }
+  #map { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background: rgba(8,14,24,.9);
+    border: 2px solid rgba(255,255,255,.6); border-radius: 10px; padding: 8px; pointer-events: none; }
+  .fx { position: fixed; inset: 0; pointer-events: none; opacity: 0; }
+  #vignette { background: radial-gradient(ellipse at center, transparent 50%, rgba(210,0,30,.7) 100%); }
+  #hide-tint { background: radial-gradient(ellipse at center, rgba(10,30,15,.2) 35%, rgba(5,20,10,.75) 100%); transition: opacity .3s; }
+  #flash { background: rgba(255,70,70,.55); }
   #overlay { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
     box-sizing: border-box; padding: 16px; overflow-y: auto; background: rgba(0,0,0,.65); color: #fff; text-align: center; }
   #overlay h1 { font-size: clamp(32px, 9vw, 48px); margin: 0 0 12px; overflow-wrap: anywhere; }
@@ -38,7 +63,22 @@
 </script>
 </head>
 <body>
-<div id="hud" class="hidden"><div id="hud-status"></div><div id="hud-keys"></div></div>
+<div id="hide-tint" class="fx"></div>
+<div id="vignette" class="fx"></div>
+<div id="flash" class="fx"></div>
+<div id="hud" class="hidden">
+  <div id="hud-status" class="hud-pill"></div>
+  <div id="hud-danger" class="hidden">
+    <span class="hud-pill"><span id="hud-hearts" aria-hidden="true"></span><span id="hud-lives-text"></span></span>
+    <span id="hud-stealth" class="hud-pill" role="status"></span>
+  </div>
+  <div id="hud-abilities">
+    <span id="hud-stamina" class="hud-pill hidden"><span id="hud-stamina-label"></span><span class="hud-bar" aria-hidden="true"><span id="hud-stamina-fill"></span></span></span>
+    <span id="hud-map" class="hud-pill hidden"></span>
+  </div>
+  <div id="hud-keys"></div>
+</div>
+<canvas id="map" class="hidden" role="img"></canvas>
 <div id="hint" class="hidden" role="status"></div>
 <div id="overlay"></div>
 <script type="module" src="./engine/main.js"></script>

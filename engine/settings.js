@@ -1,6 +1,8 @@
 export const SETTING_RANGES = {
   fov: { min: 60, max: 110, step: 1, fallback: 75 },
   mouseSensitivity: { min: 0.2, max: 3, step: 0.1, fallback: 1 },
+  musicVolume: { min: 0, max: 100, step: 1, fallback: 70 },
+  soundVolume: { min: 0, max: 100, step: 1, fallback: 100 },
 };
 
 const clamp = (name, value, fallback) => {
@@ -27,10 +29,12 @@ export function createSettings(gameName, playerConfig = {}, onChange = () => {})
 
   const settings = { defaults };
   for (const name of Object.keys(SETTING_RANGES)) settings[name] = clamp(name, saved[name], defaults[name]);
+  settings.skin = typeof saved.skin === 'string' ? saved.skin : null;
 
   const save = () => {
     const values = {};
     for (const name of Object.keys(SETTING_RANGES)) values[name] = settings[name];
+    values.skin = settings.skin;
     try { localStorage.setItem(key, JSON.stringify(values)); } catch {}
   };
 
@@ -39,6 +43,11 @@ export function createSettings(gameName, playerConfig = {}, onChange = () => {})
     settings[name] = clamp(name, value, settings[name]);
     save();
     onChange(settings);
+  };
+  // The skin is chosen on its own screen, so Reset to defaults leaves it alone.
+  settings.setSkin = (id) => {
+    settings.skin = String(id);
+    save();
   };
   settings.reset = () => {
     Object.assign(settings, defaults);

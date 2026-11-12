@@ -1,3 +1,6 @@
+import { createStamina, STAMINA_DEFAULTS } from './abilities.js';
+
+const SPRINT_KEYS = ['ShiftLeft', 'ShiftRight'];
 const MOVE_KEYS = {
   KeyW: [0, 1], ArrowUp: [0, 1],
   KeyS: [0, -1], ArrowDown: [0, -1],
@@ -7,13 +10,18 @@ const MOVE_KEYS = {
 export class Player {
   constructor(camera, settings) {
     this.camera = camera;
-    this.settings = settings;
+    this.settings = { ...STAMINA_DEFAULTS, ...settings };
+    this.stamina = createStamina(this.settings);
+    this.sprintEnabled = true;
+    this.sprinting = false;
+    this.stride = 0;
     this.maze = null;
     this.cell = 1;
     this.keys = new Set();
     this.yaw = 0;
     this.pitch = 0;
     this.moving = false;
+    this.moved = false;
     this.isSolid = () => false;
     this.bumped = new Set();
     this.mouseSensitivity = 1;
@@ -35,6 +43,7 @@ export class Player {
     this.maze = maze;
     this.isSolid = isSolid;
     this.cell = config.size.cell;
+    this.sprintEnabled = config.abilities?.sprint?.enabled !== false;
     this.keys.clear();
     this.reset();
   }
@@ -45,7 +54,10 @@ export class Player {
     this.x = (start.x + 0.5) * this.cell;
     this.z = (start.z + 0.5) * this.cell;
     this.pitch = 0;
+    this.moved = false;
     this.bumped.clear();
+    this.stamina.reset();
+    this.sprinting = false;
     this.yaw = this.openDirection();
     this.apply();
   }
@@ -86,8 +98,12 @@ export class Player {
 
     const length = Math.hypot(side, forward);
     this.moving = length > 0;
+    const shift = SPRINT_KEYS.some((code) => this.keys.has(code));
+    this.sprinting = this.stamina.update(dt, this.sprintEnabled && shift && this.moving, shift);
+    const fromX = this.x;
+    const fromZ = this.z;
     if (this.moving) {
-      const step = (this.settings.speed * dt) / length;
+      const step = ((this.sprinting ? this.settings.sprintSpeed : this.settings.speed) * dt) / length;
       const sin = Math.sin(this.yaw);
       const cos = Math.cos(this.yaw);
       const dx = (side * cos - forward * sin) * step;
@@ -95,6 +111,10 @@ export class Player {
       if (!this.blocked(this.x + dx, this.z)) this.x += dx;
       if (!this.blocked(this.x, this.z + dz)) this.z += dz;
     }
+    // Walking into a wall or only turning does not count; monsters notice real movement.
+    const distance = Math.hypot(this.x - fromX, this.z - fromZ);
+    this.moved = distance > 1e-4;
+    this.stride += distance;
     this.apply();
   }
 

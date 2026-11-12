@@ -1,5 +1,5 @@
 // Symbols: # wall, . floor, S start, E exit, a b c key, A B C matching locked door,
-// M moving wall that starts raised, m moving wall that starts lowered.
+// M moving wall that starts raised, m moving wall that starts lowered, X monster spawn, H hiding place.
 export function parseMaze(text) {
   const rows = text.replace(/\r/g, '').split('\n').filter((r) => r.length > 0);
   const width = Math.max(...rows.map((r) => r.length));
@@ -7,6 +7,8 @@ export function parseMaze(text) {
   const keys = [];
   const doors = [];
   const movers = [];
+  const monsters = [];
+  const hides = [];
   let start = null;
   let exit = null;
   rows.forEach((row, z) => {
@@ -18,6 +20,8 @@ export function parseMaze(text) {
       else if ('abc'.includes(c)) keys.push({ x, z, id: c });
       else if ('ABC'.includes(c)) doors.push({ x, z, id: c.toLowerCase() });
       else if (c === 'M' || c === 'm') movers.push({ x, z, startsUp: c === 'M' });
+      else if (c === 'X') monsters.push({ x, z });
+      else if (c === 'H') hides.push({ x, z });
     }
   });
   if (!start) throw new Error('The maze needs an S (start).');
@@ -32,6 +36,8 @@ export function parseMaze(text) {
     keys,
     doors,
     movers,
+    monsters,
+    hides,
     // Only the fixed walls; doors and moving walls are floor here and block through the level's entities.
     isWall: (x, z) => x < 0 || z < 0 || x >= width || z >= rows.length || wallSet.has(`${x},${z}`),
   };

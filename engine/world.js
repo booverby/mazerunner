@@ -2,12 +2,14 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { buildSmoothWalls } from './walls.js';
 import { createEntities } from './entities.js';
+import { createMonsters } from './monsters.js';
+import { guideMaterials } from './skins.js';
 
 const loader = new GLTFLoader();
 const modelCache = new Map();
 
 // Cached by URL so revisiting a level is instant; every caller gets its own clone.
-async function loadModel(url) {
+export async function loadModel(url) {
   if (!modelCache.has(url)) {
     const loading = loader.loadAsync(url).then((gltf) => gltf.scene);
     loading.catch(() => modelCache.delete(url));
@@ -45,7 +47,8 @@ function tint(material) {
 }
 
 // Builds a level off-screen, then adds it to the scene. dispose() removes it and frees what it created.
-export async function buildWorld(scene, maze, config, gameUrl) {
+// guideColor tints the exit's glow; setGuideColor() changes it later.
+export async function buildWorld(scene, maze, config, gameUrl, { guideColor = config.look.exit } = {}) {
   const { cell, wallHeight } = config.size;
   const { look } = config;
   const models = config.models ?? {};
@@ -56,11 +59,13 @@ export async function buildWorld(scene, maze, config, gameUrl) {
   const owned = [];
   const own = (thing) => { owned.push(thing); return thing; };
 
-  const [wallModel, exitModel, keyModel, doorModel] = await Promise.all([
+  const [wallModel, exitModel, keyModel, doorModel, monsterModel, hideModel] = await Promise.all([
     style === 'model' ? loadModel(gameUrl + models.wall) : null,
     models.exit ? loadModel(gameUrl + models.exit) : null,
     models.key && maze.keys.length ? loadModel(gameUrl + models.key) : null,
     models.door && maze.doors.length ? loadModel(gameUrl + models.door) : null,
+    models.monster && maze.monsters.length ? loadModel(gameUrl + models.monster) : null,
+    models.hide && maze.hides.length ? loadModel(gameUrl + models.hide) : null,
   ]);
 
   const sun = new THREE.DirectionalLight(0xffffff, 1.5);
@@ -128,22 +133,31 @@ export async function buildWorld(scene, maze, config, gameUrl) {
   }
 
   let exit;
+  let guideMats;
   if (exitModel) {
     exit = fitToCell(exitModel, cell * 0.6, config.size.exitHeight ?? wallHeight * 0.8);
+    guideMats = guideMaterials(exit, own);
   } else {
-    const gem = new THREE.Mesh(
-      own(new THREE.OctahedronGeometry(0.6)),
-      own(new THREE.MeshStandardMaterial({ color: look.exit, emissive: look.exit, emissiveIntensity: 0.6 })),
-    );
+    const gemMaterial = own(new THREE.MeshStandardMaterial({ color: look.exit, emissive: look.exit, emissiveIntensity: 0.6 }));
+    const gem = new THREE.Mesh(own(new THREE.OctahedronGeometry(0.6)), gemMaterial);
     gem.position.y = 1.3;
     exit = new THREE.Group();
     exit.add(gem);
+    guideMats = [gemMaterial];
   }
   exit.position.copy(centerOf(maze.exit));
   root.add(exit);
   const glow = new THREE.PointLight(look.exit, 30, cell * 3);
   glow.position.copy(centerOf(maze.exit)).setY(1.5);
   root.add(glow);
+  const setGuideColor = (color) => {
+    for (const m of guideMats) {
+      m.color?.set(color);
+      m.emissive.set(color);
+    }
+    glow.color.set(color);
+  };
+  setGuideColor(guideColor);
 
   const entities = createEntities(maze, config, {
     keyModel: keyModel && fitToCell(keyModel, 0.8, 0.8),
@@ -151,6 +165,15 @@ export async function buildWorld(scene, maze, config, gameUrl) {
     moverTemplate,
   });
   root.add(entities.group);
+
+  const monsters = createMonsters(maze, config, {
+    solid: (x, z) => entities.blocksMonster(x, z),
+    opaque: (x, z) => entities.blocks(x, z),
+    monsterModel: monsterModel && fitToCell(monsterModel, cell * 0.5, 2.2),
+    hideModel: hideModel && fitToCell(hideModel, cell, wallHeight),
+  });
+  entities.occupied = monsters.occupies;
+  root.add(monsters.group);
 
   const background = new THREE.Color(look.sky);
   const fog = new THREE.Fog(look.sky, 1, look.fogDistance);
@@ -162,12 +185,15 @@ export async function buildWorld(scene, maze, config, gameUrl) {
     exit,
     style,
     entities,
+    monsters,
+    setGuideColor,
     dispose() {
       scene.remove(root);
       if (scene.background === background) scene.background = null;
       if (scene.fog === fog) scene.fog = null;
       root.traverse((o) => { if (o.isLight) o.dispose(); });
       entities.dispose();
+      monsters.dispose();
       // Model clones share geometry and textures with the cache, so only what this level created is freed.
       for (const thing of owned) thing.dispose();
       owned.length = 0;

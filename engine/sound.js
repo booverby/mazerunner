@@ -1,12 +1,23 @@
 export class Sounds {
-  constructor(files, gameUrl) {
+  // Music is played by music.js, so a "music" entry here is skipped.
+  constructor(files, gameUrl, volume = 1) {
     this.clips = {};
     for (const [name, file] of Object.entries(files)) {
-      if (file) this.clips[name] = new Audio(gameUrl + file);
+      if (file && name !== 'music') this.clips[name] = new Audio(gameUrl + file);
     }
-    for (const name of ['music', 'step']) {
+    for (const name of ['step', 'sprint']) {
       if (this.clips[name]) this.clips[name].loop = true;
     }
+    this.setVolume(volume);
+  }
+
+  setVolume(volume) {
+    this.volume = Math.max(0, Math.min(1, volume));
+    for (const clip of Object.values(this.clips)) clip.volume = this.volume;
+  }
+
+  has(name) {
+    return Boolean(this.clips[name]);
   }
 
   play(name) {

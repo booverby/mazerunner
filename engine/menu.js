@@ -50,10 +50,11 @@ export function createMenu(root) {
         root.append(box);
       }
       const list = make('div', '', 'menu-buttons');
-      for (const { label, detail, disabled, onClick } of buttons) {
+      for (const { label, detail, disabled, pressed, onClick } of buttons) {
         const button = make('button', label);
         button.type = 'button';
         button.disabled = Boolean(disabled);
+        if (pressed !== undefined) button.setAttribute('aria-pressed', String(Boolean(pressed)));
         if (detail) button.append(make('span', detail, 'menu-detail'));
         button.addEventListener('click', onClick);
         list.append(button);

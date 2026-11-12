@@ -126,6 +126,8 @@ export function createEntities(maze, config, { keyModel = null, doorModel = null
     group,
     keyInfo,
     onEvent: () => {},
+    // Set by the level when something else (a monster) can stand in a lowered moving wall.
+    occupied: () => false,
     get held() { return [...held]; },
     get keys() { return keys.map(({ id, x, z, taken }) => ({ id, x, z, taken })); },
     get doors() { return doors.map(({ id, x, z, height }) => ({ id, x, z, open: height === 0, height })); },
@@ -137,6 +139,13 @@ export function createEntities(maze, config, { keyModel = null, doorModel = null
       const thing = blockers.get(cellKey(x, z));
       if (!thing) return false;
       return thing.kind === 'mover' ? thing.height >= PASSABLE : thing.height > 0;
+    },
+
+    // Monsters only walk through doors that are fully open and moving walls that are fully down.
+    blocksMonster(x, z) {
+      const thing = blockers.get(cellKey(x, z));
+      if (!thing) return false;
+      return thing.kind === 'mover' ? thing.phase !== 'down' : thing.height > 0;
     },
 
     reset() {
@@ -196,12 +205,12 @@ export function createEntities(maze, config, { keyModel = null, doorModel = null
         } else if (m.phase === 'sinking') {
           m.height = Math.max(0, m.height - dt / timing.moveTime);
           if (m.height === 0) Object.assign(m, { phase: 'down', timer: timing.downTime });
-        } else if (m.phase === 'down' && m.timer <= 0 && !overlaps(player, m)) {
+        } else if (m.phase === 'down' && m.timer <= 0 && !overlaps(player, m) && !entities.occupied(m.x, m.z)) {
           m.phase = 'rising';
           if (near(player, m)) entities.onEvent('wallMove');
         } else if (m.phase === 'rising') {
           // Someone stepped in while it was still low: back off instead of trapping them.
-          if (overlaps(player, m)) m.phase = 'sinking';
+          if (overlaps(player, m) || entities.occupied(m.x, m.z)) m.phase = 'sinking';
           else {
             m.height = Math.min(1, m.height + dt / timing.moveTime);
             if (m.height === 1) Object.assign(m, { phase: 'up', timer: timing.upTime });

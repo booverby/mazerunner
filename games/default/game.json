@@ -3,9 +3,15 @@
 
   "size": { "cell": 4, "wallHeight": 3, "exitHeight": 8 },
 
-  "player": { "speed": 5, "turnSpeed": 2.2, "eyeHeight": 1.6, "radius": 0.5, "fov": 75, "mouseSensitivity": 1 },
+  "player": { "speed": 5, "turnSpeed": 2.2, "eyeHeight": 1.6, "radius": 0.5, "fov": 75, "mouseSensitivity": 1,
+    "sprintSpeed": 8.5, "stamina": 4, "staminaRegen": 1, "staminaRegenDelay": 1, "staminaMinToStart": 0.5 },
 
-  "rules": { "timeLimit": 0, "movingWalls": { "upTime": 4, "downTime": 3, "moveTime": 1 } },
+  "abilities": {
+    "mapPeek": { "enabled": true, "duration": 3, "cooldown": 20, "showMonsters": false },
+    "sprint": { "enabled": true }
+  },
+
+  "rules": { "timeLimit": 0, "lives": 3, "movingWalls": { "upTime": 4, "downTime": 3, "moveTime": 1 } },
 
   "look": {
     "wall": "#7a8ca3",
@@ -17,7 +23,23 @@
 
   "walls": { "style": "blocks", "color": "#7a8ca3", "roughness": 1, "metalness": 0, "opacity": 1, "roundness": 0, "bumpiness": 0 },
 
-  "models": { "exit": "models/guide_light.glb", "key": null, "door": null },
+  "models": { "exit": "models/guide_light.glb", "key": null, "door": null, "monster": null, "hide": null },
+
+  "monsters": {
+    "patrolSpeed": 2.4,
+    "chaseSpeed": 5.6,
+    "sightRange": 5,
+    "attackRange": 1.5,
+    "windup": 0.5,
+    "searchTime": 6,
+    "safeTime": 2,
+    "viewAngle": 200,
+    "patrolRadius": 6,
+    "color": "#8e6bd1",
+    "seed": 1
+  },
+
+  "hides": { "color": "#3f7a35" },
 
   "keys": {
     "a": { "name": "Red", "color": "#e53935" },
@@ -25,34 +47,55 @@
     "c": { "name": "Blue", "color": "#1e88e5" }
   },
 
-  "sounds": { "music": null, "step": null, "win": null, "lose": null, "key": null, "door": null, "wallMove": null },
+  "music": { "calm": "sounds/placeholder_calm.wav", "tense": "sounds/placeholder_tense.wav", "danger": "sounds/placeholder_danger.wav" },
+
+  "sounds": { "step": null, "sprint": null, "win": null, "lose": null, "key": null, "door": null, "wallMove": null,
+    "monsterSpot": null, "monsterSwing": null, "hit": null, "hide": null },
+
+  "skins": [
+    { "id": "classic", "name": "Classic", "lantern": { "color": "#ffc861", "style": "classic" }, "guideLight": "#3aa0ff" },
+    { "id": "ember", "name": "Ember", "lantern": { "color": "#ff8a2a", "style": "classic" }, "guideLight": "#ff4a1c" },
+    { "id": "frost", "name": "Frost", "lantern": { "color": "#4fd6ff", "style": "crystal" }, "guideLight": "#22e0ff" },
+    { "id": "phantom", "name": "Phantom", "lantern": { "color": "#c08bff", "style": "orb" }, "guideLight": "#8a4dff" }
+  ],
 
   "levels": [
     {
       "id": "garden",
       "name": "Hedge garden",
       "maze": "levels/garden.txt",
+      "rules": { "timeLimit": 90 },
       "look": { "floor": "#3d4a2f", "sky": "#2b3a5c", "fogDistance": 40 },
-      "walls": { "style": "smooth", "color": "#3f7a35", "roughness": 0.95, "roundness": 0.9, "bumpiness": 0.35, "colorVariation": 0.35, "seed": 3 }
+      "walls": { "style": "smooth", "color": "#3f7a35", "roughness": 0.95, "roundness": 0.9, "bumpiness": 0.35, "colorVariation": 0.35, "seed": 3 },
+      "monsters": { "patrolSpeed": 1.8, "chaseSpeed": 4.8, "sightRange": 3, "patrolRadius": 4, "color": "#9a6fd6" },
+      "hides": { "color": "#5a9a3a" }
     },
     {
       "id": "dungeon",
       "name": "Stone dungeon",
       "maze": "levels/dungeon.txt",
+      "rules": { "timeLimit": 360 },
       "look": { "floor": "#2a2826", "sky": "#07080c", "fogDistance": 22 },
-      "walls": { "style": "smooth", "color": "#8a8580", "roughness": 0.95, "metalness": 0, "roundness": 0.2, "bumpiness": 0.1, "colorVariation": 0.3, "seed": 7 }
+      "walls": { "style": "smooth", "color": "#8a8580", "roughness": 0.95, "metalness": 0, "roundness": 0.2, "bumpiness": 0.1, "colorVariation": 0.3, "seed": 7 },
+      "monsters": { "color": "#6f8f3a", "seed": 7 },
+      "hides": { "color": "#7a4a5e" }
     },
     {
       "id": "ice",
       "name": "Ice cave",
       "maze": "levels/ice.txt",
+      "rules": { "timeLimit": 600 },
       "look": { "floor": "#b8cfdd", "sky": "#d8ebf7", "fogDistance": 45 },
-      "walls": { "style": "smooth", "color": "#d6ecfb", "roughness": 0.12, "metalness": 0.05, "opacity": 1, "roundness": 0.6, "bumpiness": 0, "colorVariation": 0.12, "seed": 11 }
+      "walls": { "style": "smooth", "color": "#d6ecfb", "roughness": 0.12, "metalness": 0.05, "opacity": 1, "roundness": 0.6, "bumpiness": 0, "colorVariation": 0.12, "seed": 11 },
+      "monsters": { "color": "#4a6fb5", "seed": 11 },
+      "hides": { "color": "#2f7a8a" }
     }
   ],
 
   "text": {
-    "controls": "Move: W A S D or arrow keys\nLook: mouse\nPause: Esc or P\nPick up keys to open doors of the same colour",
+    "controls": "W A S D to move, mouse to look\nShift to sprint, M for the map\nEsc to pause",
+    "howToPlay": "How to play",
+    "howToPlayText": "Move: W A S D or arrow keys\nLook: mouse (arrow keys also turn)\nSprint: hold Shift while the stamina bar lasts\nMap: M or Tab shows the maze for a few seconds\nPause: Esc or P\n\nPick up keys to open doors of the same colour\nMonsters only notice you when you move\nHide in bushes to shake them off\nReach the guide light before the time runs out",
     "play": "Play",
     "settings": "Settings",
     "back": "Back",
@@ -75,6 +118,23 @@
     "loading": "Loading...",
     "loadError": "Could not load the level",
     "needKey": "You need the {key} key",
-    "gotKey": "{key} key picked up"
+    "gotKey": "{key} key picked up",
+    "lives": "Lives: {lives}",
+    "hidden": "Hidden",
+    "unseen": "Unseen",
+    "spotted": "Spotted!",
+    "caught": "Caught!",
+    "lostLife": "Ouch! {lives} lives left",
+    "stamina": "Stamina",
+    "staminaEmpty": "Out of breath",
+    "mapReady": "Map ready (M)",
+    "mapWait": "Map {time} s",
+    "mapOpen": "Map open",
+    "mapLabel": "Map of the maze",
+    "hurry": "Hurry!",
+    "skins": "Skins",
+    "selected": "Selected",
+    "musicVolume": "Music volume",
+    "soundVolume": "Sound effects volume"
   }
 }
