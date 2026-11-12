@@ -1,0 +1,30 @@
+{
+  "title": "Mazerunner",
+  "maze": "maze.txt",
+
+  "size": { "cell": 4, "wallHeight": 3 },
+
+  "player": { "speed": 5, "turnSpeed": 2.2, "eyeHeight": 1.6, "radius": 0.5 },
+
+  "rules": { "timeLimit": 0 },
+
+  "look": {
+    "wall": "#7a8ca3",
+    "floor": "#3b3f46",
+    "exit": "#35d07f",
+    "sky": "#101820",
+    "fogDistance": 40
+  },
+
+  "models": { "wall": null, "exit": null },
+
+  "sounds": { "music": null, "step": null, "win": null, "lose": null },
+
+  "text": {
+    "start": "Click to start\nMove: W A S D or arrow keys\nLook: mouse",
+    "paused": "Click to continue",
+    "win": "You found the exit!",
+    "lose": "Time is up",
+    "again": "Click to play again"
+  }
+}
