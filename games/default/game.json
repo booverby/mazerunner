@@ -4,7 +4,7 @@
 
   "size": { "cell": 4, "wallHeight": 3, "exitHeight": 8 },
 
-  "player": { "speed": 5, "turnSpeed": 2.2, "eyeHeight": 1.6, "radius": 0.5 },
+  "player": { "speed": 5, "turnSpeed": 2.2, "eyeHeight": 1.6, "radius": 0.5, "fov": 75, "mouseSensitivity": 1 },
 
   "rules": { "timeLimit": 0 },
 
@@ -21,10 +21,20 @@
   "sounds": { "music": null, "step": null, "win": null, "lose": null },
 
   "text": {
-    "start": "Click to start\nMove: W A S D or arrow keys\nLook: mouse",
-    "paused": "Click to continue",
+    "controls": "Move: W A S D or arrow keys\nLook: mouse\nPause: Esc or P",
+    "play": "Play",
+    "settings": "Settings",
+    "back": "Back",
+    "paused": "Paused",
+    "resume": "Resume",
+    "restart": "Restart level",
+    "quit": "Quit to menu",
     "win": "You found the exit!",
     "lose": "Time is up",
-    "again": "Click to play again"
+    "timeTaken": "Time: {time} s",
+    "playAgain": "Play again",
+    "fov": "Field of view",
+    "mouseSensitivity": "Mouse sensitivity",
+    "resetSettings": "Reset to defaults"
   }
 }

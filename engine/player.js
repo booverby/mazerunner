@@ -14,6 +14,7 @@ export class Player {
     this.yaw = 0;
     this.pitch = 0;
     this.moving = false;
+    this.mouseSensitivity = 1;
     camera.rotation.order = 'YXZ';
     this.reset();
 
@@ -22,8 +23,9 @@ export class Player {
     addEventListener('blur', () => this.keys.clear());
     addEventListener('mousemove', (e) => {
       if (!document.pointerLockElement) return;
-      this.yaw -= e.movementX * 0.0025;
-      this.pitch = Math.max(-1.4, Math.min(1.4, this.pitch - e.movementY * 0.0025));
+      const speed = 0.0025 * this.mouseSensitivity;
+      this.yaw -= e.movementX * speed;
+      this.pitch = Math.max(-1.4, Math.min(1.4, this.pitch - e.movementY * speed));
     });
   }
 
